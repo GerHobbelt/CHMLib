@@ -12,11 +12,11 @@
 		C1083F061C934EA800129D9C /* sha1.c in Sources */ = {isa = PBXBuildFile; fileRef = C1083EF41C934D4F00129D9C /* sha1.c */; };
 		C1083F071C934EB400129D9C /* CHM.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* CHM.framework */; };
 		C1083F101C934EEA00129D9C /* CHM.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* CHM.framework */; };
-		C1083F161C934F0E00129D9C /* enum_chmLib.c in Sources */ = {isa = PBXBuildFile; fileRef = C1083EF21C934D4F00129D9C /* enum_chmLib.c */; };
+		C1083F161C934F0E00129D9C /* enum.c in Sources */ = {isa = PBXBuildFile; fileRef = C1083EF21C934D4F00129D9C /* enum.c */; };
 		C1083F1D1C934F9000129D9C /* CHM.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* CHM.framework */; };
 		C1083F291C934FB100129D9C /* CHM.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* CHM.framework */; };
 		C1083F2F1C934FC800129D9C /* chm_http.c in Sources */ = {isa = PBXBuildFile; fileRef = C1083EF11C934D4F00129D9C /* chm_http.c */; };
-		C1083F301C934FD400129D9C /* extract_chmLib.c in Sources */ = {isa = PBXBuildFile; fileRef = C1083EF31C934D4F00129D9C /* extract_chmLib.c */; };
+		C1083F301C934FD400129D9C /* extract.c in Sources */ = {isa = PBXBuildFile; fileRef = C1083EF31C934D4F00129D9C /* extract.c */; };
 		C16CEFDF1C8E0A55004DD019 /* CHM.h in Headers */ = {isa = PBXBuildFile; fileRef = C16CEFDE1C8E0A55004DD019 /* CHM.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C17B17AD1C8CB80200E983B0 /* chm_lib.c in Sources */ = {isa = PBXBuildFile; fileRef = C17B17A91C8CB80200E983B0 /* chm_lib.c */; };
 		C17B17AE1C8CB80200E983B0 /* chm_lib.h in Headers */ = {isa = PBXBuildFile; fileRef = C17B17AA1C8CB80200E983B0 /* chm_lib.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -59,22 +59,22 @@
 		089C1667FE841158C02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		8DC2EF5A0486A6940098B216 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8DC2EF5B0486A6940098B216 /* CHM.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CHM.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		C1083EF11C934D4F00129D9C /* chm_http.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = chm_http.c; path = ../../tools/chm_http.c; sourceTree = "<group>"; };
-		C1083EF21C934D4F00129D9C /* enum_chmLib.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = enum_chmLib.c; path = ../../tools/enum_chmLib.c; sourceTree = "<group>"; };
-		C1083EF31C934D4F00129D9C /* extract_chmLib.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = extract_chmLib.c; path = ../../tools/extract_chmLib.c; sourceTree = "<group>"; };
-		C1083EF41C934D4F00129D9C /* sha1.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = sha1.c; path = ../../tools/sha1.c; sourceTree = "<group>"; };
-		C1083EF51C934D4F00129D9C /* sha1.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = sha1.h; path = ../../tools/sha1.h; sourceTree = "<group>"; };
-		C1083EF61C934D4F00129D9C /* test_dir.go */ = {isa = PBXFileReference; lastKnownFileType = text; name = test_dir.go; path = ../../tools/test_dir.go; sourceTree = "<group>"; };
-		C1083EF71C934D4F00129D9C /* test.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = test.c; path = ../../tools/test.c; sourceTree = "<group>"; };
+		C1083EF11C934D4F00129D9C /* chm_http.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = chm_http.c; sourceTree = "<group>"; };
+		C1083EF21C934D4F00129D9C /* enum.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = enum.c; sourceTree = "<group>"; };
+		C1083EF31C934D4F00129D9C /* extract.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = extract.c; sourceTree = "<group>"; };
+		C1083EF41C934D4F00129D9C /* sha1.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = sha1.c; sourceTree = "<group>"; };
+		C1083EF51C934D4F00129D9C /* sha1.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sha1.h; sourceTree = "<group>"; };
+		C1083EF61C934D4F00129D9C /* test_dir.go */ = {isa = PBXFileReference; lastKnownFileType = text; path = test_dir.go; sourceTree = "<group>"; };
+		C1083EF71C934D4F00129D9C /* test.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = test.c; sourceTree = "<group>"; };
 		C1083EFC1C934DEF00129D9C /* test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test; sourceTree = BUILT_PRODUCTS_DIR; };
 		C1083F151C934EEA00129D9C /* enum_chmLib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = enum_chmLib; sourceTree = BUILT_PRODUCTS_DIR; };
 		C1083F221C934F9000129D9C /* extract_chmLib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = extract_chmLib; sourceTree = BUILT_PRODUCTS_DIR; };
 		C1083F2E1C934FB100129D9C /* chm_http */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = chm_http; sourceTree = BUILT_PRODUCTS_DIR; };
-		C16CEFDE1C8E0A55004DD019 /* CHM.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CHM.h; sourceTree = "<group>"; };
-		C17B17A91C8CB80200E983B0 /* chm_lib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = chm_lib.c; path = ../../src/chm_lib.c; sourceTree = SOURCE_ROOT; };
-		C17B17AA1C8CB80200E983B0 /* chm_lib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = chm_lib.h; path = ../../src/chm_lib.h; sourceTree = SOURCE_ROOT; };
-		C17B17AB1C8CB80200E983B0 /* lzx.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lzx.c; path = ../../src/lzx.c; sourceTree = SOURCE_ROOT; };
-		C17B17AC1C8CB80200E983B0 /* lzx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lzx.h; path = ../../src/lzx.h; sourceTree = SOURCE_ROOT; };
+		C16CEFDE1C8E0A55004DD019 /* CHM.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CHM.h; sourceTree = SOURCE_ROOT; };
+		C17B17A91C8CB80200E983B0 /* chm_lib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = chm_lib.c; sourceTree = "<group>"; };
+		C17B17AA1C8CB80200E983B0 /* chm_lib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = chm_lib.h; sourceTree = "<group>"; };
+		C17B17AB1C8CB80200E983B0 /* lzx.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lzx.c; sourceTree = "<group>"; };
+		C17B17AC1C8CB80200E983B0 /* lzx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lzx.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -155,18 +155,20 @@
 				C17B17AB1C8CB80200E983B0 /* lzx.c */,
 			);
 			name = Sources;
+			path = ../../src;
 			sourceTree = "<group>";
 		};
 		C1083EF01C934D1800129D9C /* tools */ = {
 			isa = PBXGroup;
 			children = (
 				C1083F081C934ED700129D9C /* test */,
-				C1083EF21C934D4F00129D9C /* enum_chmLib.c */,
-				C1083EF31C934D4F00129D9C /* extract_chmLib.c */,
+				C1083EF21C934D4F00129D9C /* enum.c */,
+				C1083EF31C934D4F00129D9C /* extract.c */,
 				C1083EF11C934D4F00129D9C /* chm_http.c */,
 				C1083EF61C934D4F00129D9C /* test_dir.go */,
 			);
 			name = tools;
+			path = ../../tools;
 			sourceTree = "<group>";
 		};
 		C1083F081C934ED700129D9C /* test */ = {
@@ -351,7 +353,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C1083F161C934F0E00129D9C /* enum_chmLib.c in Sources */,
+				C1083F161C934F0E00129D9C /* enum.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -359,7 +361,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C1083F301C934FD400129D9C /* extract_chmLib.c in Sources */,
+				C1083F301C934FD400129D9C /* extract.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
