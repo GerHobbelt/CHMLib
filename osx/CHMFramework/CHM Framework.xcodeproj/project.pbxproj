@@ -56,7 +56,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		089C1667FE841158C02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		550B33D9226D1FC400D3108F /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		8DC2EF5A0486A6940098B216 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8DC2EF5B0486A6940098B216 /* CHM.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CHM.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C1083EF11C934D4F00129D9C /* chm_http.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = chm_http.c; sourceTree = "<group>"; };
@@ -298,13 +298,13 @@
 			};
 			buildConfigurationList = 1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "CHM Framework" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 1;
 			knownRegions = (
-				English,
-				Japanese,
-				French,
-				German,
+				ja,
+				en,
+				fr,
+				de,
 			);
 			mainGroup = 0867D691FE84028FC02AAC07 /* CHM */;
 			productRefGroup = 034768DFFF38A50411DB9C8B /* Products */;
@@ -403,7 +403,7 @@
 		089C1666FE841158C02AAC07 /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
-				089C1667FE841158C02AAC07 /* English */,
+				550B33D9226D1FC400D3108F /* en */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
