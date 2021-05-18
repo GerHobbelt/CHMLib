@@ -72,7 +72,12 @@ static bool enum_fd(const char* path) {
     return true;
 }
 
-int main(int c, char** v) {
+
+#if defined(BUILD_MONOLITHIC)
+#define main      chm_enum_main
+#endif
+
+int main(int c, const char** v) {
     for (int i = 1; i < c; i++) {
         const char* path = v[i];
 

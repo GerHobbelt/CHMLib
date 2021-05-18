@@ -132,7 +132,12 @@ static void dbg_print(const char* s) {
     fprintf(stderr, "%s", s);
 }
 
-int main(int c, char** v) {
+
+#if defined(BUILD_MONOLITHIC)
+#define main      chm_test_main
+#endif
+
+int main(int c, const char** v) {
     if (c < 2) {
         fprintf(stderr, "usage: %s <chmfile>\n", v[0]);
         exit(1);

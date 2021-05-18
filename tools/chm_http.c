@@ -34,15 +34,29 @@ j *              in fact, probably badly broken for any serious usage.      *
 #include <string.h>
 
 /* includes for networking */
-#include <sys/socket.h>
 #include <sys/types.h>
+#if defined(WIN32) || defined(WIN64)
+#include <ws2tcpip.h>
+#include <winsock2.h>
+#include <windows.h>
+#else
+#include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#endif
 
 /* threading includes */
 #include <pthread.h>
 
+#if !defined(_MSC_VER) && !defined(BUILD_MONOLITHIC)
 #include <getopt.h>
+#else
+#include "../../../jpeginfo/getopt.h"
+
+#include "../../../jpeginfo/getopt.c"
+#include "../../../jpeginfo/getopt1.c"
+#endif
+
 
 static int config_port = 8080;
 static char config_bind[65536] = "0.0.0.0";
@@ -57,7 +71,12 @@ static void usage(const char* argv0) {
 
 static int chmhttp_server(const char* path);
 
-int main(int c, char** v) {
+
+#if defined(BUILD_MONOLITHIC)
+#define main      chm_server_main
+#endif
+
+int main(int c, const char** v) {
     int res;
 #ifdef CHM_HTTP_SIMPLE
     if (c < 2) {

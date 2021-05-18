@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef WIN32
+#if defined(WIN32) || defined(WIN64)
 #include <windows.h>
 #include <direct.h>
 #define mkdir(X, Y) _mkdir(X)
@@ -176,7 +176,12 @@ static bool extract_fd(const char* path, const char* base_path) {
     return ok;
 }
 
-int main(int c, char** v) {
+
+#if defined(BUILD_MONOLITHIC)
+#define main      chm_extract_main
+#endif
+
+int main(int c, const char** v) {
     if (c < 3) {
         fprintf(stderr, "usage: %s <chmfile> <outdir>\n", v[0]);
         exit(1);
