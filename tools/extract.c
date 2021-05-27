@@ -178,16 +178,17 @@ static bool extract_fd(const char* path, const char* base_path) {
 
 
 #if defined(BUILD_MONOLITHIC)
-#define main      chm_extract_main
+#define main(cnt, arr)      chm_extract_main(cnt, arr)
 #endif
 
-int main(int c, const char** v) {
-    if (c < 3) {
-        fprintf(stderr, "usage: %s <chmfile> <outdir>\n", v[0]);
-        exit(1);
+int main(int argc, const char** argv)
+{
+    if (argc < 3) {
+        fprintf(stderr, "usage: %s <chmfile> <outdir>\n", argv[0]);
+        return 1;
     }
 
-    bool ok = extract_fd(v[1], v[2]);
+    bool ok = extract_fd(argv[1], argv[2]);
     if (!ok) {
         printf("   *** ERROR ***\n");
     }

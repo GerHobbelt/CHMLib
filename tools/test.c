@@ -134,18 +134,19 @@ static void dbg_print(const char* s) {
 
 
 #if defined(BUILD_MONOLITHIC)
-#define main      chm_test_main
+#define main(cnt, arr)      chm_test_main(cnt, arr)
 #endif
 
-int main(int c, const char** v) {
-    if (c < 2) {
-        fprintf(stderr, "usage: %s <chmfile>\n", v[0]);
-        exit(1);
+int main(int argc, const char** argv)
+{
+    if (argc < 2) {
+        fprintf(stderr, "usage: %s <chmfile>\n", argv[0]);
+        return 1;
     }
     if (show_dbg_out) {
         chm_set_dbgprint(dbg_print);
     }
-    bool ok = test_fd(v[1]);
+    bool ok = test_fd(argv[1]);
     if (ok) {
         return 0;
     }

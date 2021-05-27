@@ -73,19 +73,20 @@ static int chmhttp_server(const char* path);
 
 
 #if defined(BUILD_MONOLITHIC)
-#define main      chm_server_main
+#define main(cnt, arr)      chm_server_main(cnt, arr)
 #endif
 
-int main(int c, const char** v) {
+int main(int argc, const char** argv)
+{
     int res;
 #ifdef CHM_HTTP_SIMPLE
-    if (c < 2) {
-        usage(v[0]);
+    if (argc < 2) {
+        usage(argv[0]);
         return 1;
     }
 
     /* run the server */
-    res = chmhttp_server(v[1]);
+    res = chmhttp_server(argv[1]);
 
 #else
     int optindex = 0;
@@ -97,7 +98,7 @@ int main(int c, const char** v) {
 
     while (1) {
         int o;
-        o = getopt_long(c, v, "n:b:h", longopts, &optindex);
+        o = getopt_long(argc, argv, "n:b:h", longopts, &optindex);
         if (o < 0) {
             break;
         }
@@ -117,17 +118,17 @@ int main(int c, const char** v) {
                 break;
 
             case 'h':
-                usage(v[0]);
+                usage(argv[0]);
                 break;
         }
     }
 
-    if (optind + 1 != c) {
-        usage(v[0]);
+    if (optind + 1 != argc) {
+        usage(argv[0]);
     }
 
     /* run the server */
-    res = chmhttp_server(v[optind]);
+    res = chmhttp_server(argv[optind]);
 #endif
 
     return res;
