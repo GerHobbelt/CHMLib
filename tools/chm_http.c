@@ -34,15 +34,29 @@ j *              in fact, probably badly broken for any serious usage.      *
 #include <string.h>
 
 /* includes for networking */
-#include <sys/socket.h>
 #include <sys/types.h>
+#if defined(WIN32) || defined(WIN64)
+#include <ws2tcpip.h>
+#include <winsock2.h>
+#include <windows.h>
+#else
+#include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#endif
 
 /* threading includes */
 #include <pthread.h>
 
+#if !defined(_MSC_VER) && !defined(BUILD_MONOLITHIC)
 #include <getopt.h>
+#else
+#include "../../../jpeginfo/getopt.h"
+
+#include "../../../jpeginfo/getopt.c"
+#include "../../../jpeginfo/getopt1.c"
+#endif
+
 
 static int config_port = 8080;
 static char config_bind[65536] = "127.0.0.1";
@@ -58,16 +72,22 @@ static void usage(const char* argv0) {
 
 static int chmhttp_server(const char* path);
 
-int main(int c, char** v) {
+
+#if defined(BUILD_MONOLITHIC)
+#define main(cnt, arr)      chm_server_main(cnt, arr)
+#endif
+
+int main(int argc, const char** argv)
+{
     int res;
 #ifdef CHM_HTTP_SIMPLE
-    if (c < 2) {
-        usage(v[0]);
+    if (argc < 2) {
+        usage(argv[0]);
         return 1;
     }
 
     /* run the server */
-    res = chmhttp_server(v[1]);
+    res = chmhttp_server(argv[1]);
 
 #else
     int optindex = 0;
@@ -80,7 +100,7 @@ int main(int c, char** v) {
 
     while (1) {
         int o;
-        o = getopt_long(c, v, "p:b:qh", longopts, &optindex);
+        o = getopt_long(argc, argv, "p:b:qh", longopts, &optindex);
         if (o < 0) {
             break;
         }
@@ -104,17 +124,17 @@ int main(int c, char** v) {
                 break;
 
             case 'h':
-                usage(v[0]);
+                usage(argv[0]);
                 break;
         }
     }
 
-    if (optind + 1 != c) {
-        usage(v[0]);
+    if (optind + 1 != argc) {
+        usage(argv[0]);
     }
 
     /* run the server */
-    res = chmhttp_server(v[optind]);
+    res = chmhttp_server(argv[optind]);
 #endif
 
     return res;

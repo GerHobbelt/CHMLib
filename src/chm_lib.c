@@ -45,7 +45,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-#ifdef WIN32
+#if defined(WIN32) || defined(WIN64)
 #include <windows.h>
 #include <malloc.h>
 #include <io.h>
@@ -58,7 +58,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-/* #include <dmalloc.h> */
 #endif
 
 #include "chm_lib.h"

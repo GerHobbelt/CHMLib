@@ -72,9 +72,15 @@ static bool enum_fd(const char* path) {
     return true;
 }
 
-int main(int c, char** v) {
-    for (int i = 1; i < c; i++) {
-        const char* path = v[i];
+
+#if defined(BUILD_MONOLITHIC)
+#define main(cnt, arr)      chm_enum_main(cnt, arr)
+#endif
+
+int main(int argc, const char** argv)
+{
+    for (int i = 1; i < argc; i++) {
+        const char* path = argv[i];
 
         printf("%s:\n", path);
         printf(" spc    start   length   type\t\t\tname\n");
@@ -83,7 +89,7 @@ int main(int c, char** v) {
         bool ok = enum_fd(path);
         if (!ok) {
             printf("   *** ERROR ***\n");
-            exit(1);
+            return 1;
         }
     }
 
