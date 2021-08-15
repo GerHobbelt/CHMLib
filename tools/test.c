@@ -15,33 +15,8 @@
 
 #include "sha1.h"
 
-#define UNUSED(x) (void) x
-
-static uint8_t* extract_file(struct chmFile* h, struct chmUnitInfo* ui) {
-    int64_t len = (int64_t)ui->length;
-
-    uint8_t* buf = (uint8_t*)malloc(len + 1);
-    if (buf == NULL) {
-        return NULL;
-    }
-    buf[len] = 0; /* null-terminate just in case */
-
-    int64_t n = chm_retrieve_object(h, ui, buf, 0, len);
-    if (n != len) {
-        free(buf);
-        return NULL;
-    }
-    return buf;
-}
-
-/* return 1 if path ends with '/' */
-static int is_dir(const char* path) {
-    size_t n = strlen(path) - 1;
-    return path[n] == '/';
-}
-
-/* return 1 if s contains ',' */
-static int needs_csv_escaping(const char* s) {
+/* return true if s contains ',' */
+static bool needs_csv_escaping(const char* s) {
     while (*s && (*s != ',')) {
         s++;
     }
@@ -63,92 +38,111 @@ static void sha1_to_hex(uint8_t* sha1, char* sha1Hex) {
     }
 }
 
-static int enum_cb(struct chmFile* h, struct chmUnitInfo* ui, void* ctx) {
-    UNUSED(ctx);
+static uint8_t* extract_entry(struct chm_file* h, chm_entry* e) {
+    int64_t len = (int64_t)e->length;
+
+    uint8_t* buf = (uint8_t*)malloc((size_t)len + 1);
+    if (buf == NULL) {
+        return NULL;
+    }
+    buf[len] = 0; /* null-terminate just in case */
+
+    int64_t n = chm_retrieve_entry(h, e, buf, 0, len);
+    if (n != len) {
+        free(buf);
+        return NULL;
+    }
+    return buf;
+}
+
+static bool process_entry(struct chm_file* h, chm_entry* e) {
     char buf[128] = {0};
     uint8_t sha1[20] = {0};
     char sha1Hex[41] = {0};
 
-    int isFile = ui->flags & CHM_ENUMERATE_FILES;
+    int isFile = e->flags & CHM_ENUMERATE_FILES;
 
-    if (ui->flags & CHM_ENUMERATE_SPECIAL)
+    if (e->flags & CHM_ENUMERATE_SPECIAL)
         strcpy(buf, "special_");
-    else if (ui->flags & CHM_ENUMERATE_META)
+    else if (e->flags & CHM_ENUMERATE_META)
         strcpy(buf, "meta_");
 
-    if (ui->flags & CHM_ENUMERATE_DIRS)
+    if (e->flags & CHM_ENUMERATE_DIRS)
         strcat(buf, "dir");
     else if (isFile)
         strcat(buf, "file");
 
-    if (ui->length > 0) {
-        uint8_t* d = extract_file(h, ui);
+    if (e->length > 0) {
+        uint8_t* d = extract_entry(h, e);
         if (d != NULL) {
-            int err = sha1_process_all(d, ui->length, sha1);
+            int err = sha1_process_all(d, (unsigned long)e->length, sha1);
             free(d);
             if (err != CRYPT_OK) {
-                return CHM_ENUMERATOR_FAILURE;
+                return false;
             }
         }
     }
 
     sha1_to_hex(sha1, sha1Hex);
-    if (needs_csv_escaping(ui->path)) {
-        printf("%d,%d,%d,%s,%s,\"%s\"\n", (int)ui->space, (int)ui->start, (int)ui->length, buf,
-               sha1Hex, ui->path);
+    if (needs_csv_escaping(e->path)) {
+        printf("%d,%d,%d,%s,%s,\"%s\"\n", (int)e->space, (int)e->start, (int)e->length, buf,
+               sha1Hex, e->path);
     } else {
-        printf("%1d,%d,%d,%s,%s,%s\n", (int)ui->space, (int)ui->start, (int)ui->length, buf,
-               sha1Hex, ui->path);
+        printf("%1d,%d,%d,%s,%s,%s\n", (int)e->space, (int)e->start, (int)e->length, buf, sha1Hex,
+               e->path);
     }
-
-    if (ui->length == 0 || !isFile) {
-        return CHM_ENUMERATOR_CONTINUE;
-    }
-
-    /* this should be redundant to isFile, but better be safe than sorry */
-    if (is_dir(ui->path)) {
-        return CHM_ENUMERATOR_CONTINUE;
-    }
-
-    return CHM_ENUMERATOR_CONTINUE;
+    return true;
 }
 
-#if 0
-static void test_asan_1(int off) {
-  int stack_array[100];
-  stack_array[1] = 0;
-  int n = stack_array[off + 100];  // BOOM
-  printf("n: %d\n", n);
+static bool test_chm(chm_file* h) {
+    for (int i = 0; i < h->n_entries; i++) {
+        if (!process_entry(h, h->entries[i])) {
+            printf("   *** ERROR ***\n");
+            return false;
+        }
+    }
+    if (h->parse_entries_failed) {
+        printf("   *** ERROR ***\n");
+    }
+    return true;
 }
-#endif
+
+static bool test_fd(const char* path) {
+    fd_reader_ctx ctx;
+    if (!fd_reader_init(&ctx, path)) {
+        fprintf(stderr, "failed to open %s\n", path);
+        return false;
+    }
+    chm_file f;
+    bool ok = chm_parse(&f, fd_reader, &ctx);
+    if (!ok) {
+        fprintf(stderr, "chm_parse() failed\n");
+        fd_reader_close(&ctx);
+        return false;
+    }
+    ok = test_chm(&f);
+    chm_close(&f);
+    fd_reader_close(&ctx);
+    return ok;
+}
+
+static bool show_dbg_out = false;
+
+static void dbg_print(const char* s) {
+    fprintf(stderr, "%s", s);
+}
 
 int main(int c, char** v) {
-    struct chmFile* h;
-
     if (c < 2) {
         fprintf(stderr, "usage: %s <chmfile>\n", v[0]);
         exit(1);
     }
-
-/* test_asan_1(0); */
-#if 0
-    int err = sha1_test();
-    if (err != CRYPT_OK) {
-      fprintf(stderr, "sha1 doesn't work\n");
+    if (show_dbg_out) {
+        chm_set_dbgprint(dbg_print);
     }
-#endif
-
-    h = chm_open(v[1]);
-    if (h == NULL) {
-        fprintf(stderr, "failed to open %s\n", v[1]);
-        exit(1);
+    bool ok = test_fd(v[1]);
+    if (ok) {
+        return 0;
     }
-
-    if (!chm_enumerate(h, CHM_ENUMERATE_ALL, enum_cb, NULL)) {
-        printf("   *** ERROR ***\n");
-    }
-
-    chm_close(h);
-
-    return 0;
+    return 1;
 }

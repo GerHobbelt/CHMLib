@@ -1,4 +1,3 @@
-/* $Id: chm_http.c,v 1.7 2002/10/08 03:43:33 jedwin Exp $ */
 /***************************************************************************
  *             chm_http.c - CHM archive test driver                        *
  *                           -------------------                           *
@@ -12,7 +11,7 @@
  *              It is not included with the expectation that it will be of *
  *              use to others; nor is it included as an example of a       *
  *              stunningly good implementation of an HTTP server.  It is,  *
- *              in fact, probably badly broken for any serious usage.      *
+j *              in fact, probably badly broken for any serious usage.      *
  *                                                                         *
  *              Nevertheless, it is another example program, and it does   *
  *              serve a purpose for me, so I've included it as well.       *
@@ -45,8 +44,6 @@
 
 #include <getopt.h>
 
-#define UNUSED(x) (void) x
-
 static int config_port = 8080;
 static char config_bind[65536] = "127.0.0.1";
 static char config_quiet = 0;
@@ -57,18 +54,20 @@ static void usage(const char* argv0) {
 #else
     fprintf(stderr, "usage: %s [--quiet] [--port=PORT] [--bind=IP] <filename>\n", argv0);
 #endif
-    exit(1);
 }
 
-static void chmhttp_server(const char* filename);
+static int chmhttp_server(const char* path);
 
 int main(int c, char** v) {
+    int res;
 #ifdef CHM_HTTP_SIMPLE
-    if (c < 2)
+    if (c < 2) {
         usage(v[0]);
+        return 1;
+    }
 
     /* run the server */
-    chmhttp_server(v[1]);
+    res = chmhttp_server(v[1]);
 
 #else
     int optindex = 0;
@@ -115,16 +114,15 @@ int main(int c, char** v) {
     }
 
     /* run the server */
-    chmhttp_server(v[optind]);
+    res = chmhttp_server(v[optind]);
 #endif
 
-    /* NOT REACHED */
-    return 0;
+    return res;
 }
 
 struct chmHttpServer {
     int socket;
-    struct chmFile* file;
+    chm_file file;
 };
 
 struct chmHttpSlave {
@@ -134,7 +132,7 @@ struct chmHttpSlave {
 
 static void* _slave(void* param);
 
-static void chmhttp_server(const char* filename) {
+static int chmhttp_server(const char* path) {
     struct chmHttpServer server;
     struct chmHttpSlave* slave;
     struct sockaddr_in bindAddr;
@@ -142,13 +140,18 @@ static void chmhttp_server(const char* filename) {
     pthread_t tid;
     int one = 1;
 
-    /* open file */
-    if ((server.file = chm_open(filename)) == NULL) {
-        fprintf(stderr, "couldn't open file '%s'\n", filename);
-        exit(2);
+    fd_reader_ctx ctx;
+    if (!fd_reader_init(&ctx, path)) {
+        fprintf(stderr, "failed to open %s\n", path);
+        return 1;
+    }
+    bool ok = chm_parse(&server.file, fd_reader, &ctx);
+    if (!ok) {
+        fprintf(stderr, "couldn't open file '%s'\n", path);
+        fd_reader_close(&ctx);
+        return 2;
     }
 
-    /* create socket */
     server.socket = socket(AF_INET, SOCK_STREAM, 0);
     memset(&bindAddr, 0, sizeof(struct sockaddr_in));
     bindAddr.sin_family = AF_INET;
@@ -157,14 +160,14 @@ static void chmhttp_server(const char* filename) {
 
     if (setsockopt(server.socket, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one))) {
         perror("setsockopt");
-        exit(3);
+        return 3;
     }
 
     if (bind(server.socket, (struct sockaddr*)&bindAddr, sizeof(struct sockaddr_in)) < 0) {
         close(server.socket);
         server.socket = -1;
         fprintf(stderr, "couldn't bind to ip %s port %d\n", config_bind, config_port);
-        exit(3);
+        return 3;
     }
 
     /* Display URL for server */
@@ -187,17 +190,18 @@ static void chmhttp_server(const char* filename) {
         pthread_detach(tid);
     }
     free(slave);
+    return 0;
 }
 
-static void service_request(int fd, struct chmFile* file);
+static void service_request(int fd, struct chm_file* file);
 
 static void* _slave(void* param) {
     struct chmHttpSlave* slave;
-    struct chmFile* file;
+    struct chm_file* file;
 
     /* grab our relevant information */
     slave = (struct chmHttpSlave*)param;
-    file = slave->server->file;
+    file = &slave->server->file;
 
     /* handle request */
     service_request(slave->fd, file);
@@ -237,31 +241,25 @@ static struct mime_mapping mime_types[] = {{".htm", "text/html"},
                                            {".png", "image/png"}};
 
 static const char* lookup_mime(const char* ext) {
-    int i;
-    if (ext != NULL) {
-        for (i = 0; i < sizeof(mime_types) / sizeof(struct mime_mapping); i++) {
-            if (strcasecmp(mime_types[i].ext, ext) == 0)
-                return mime_types[i].ctype;
-        }
+    size_t nTypes = sizeof(mime_types) / sizeof(struct mime_mapping);
+    for (size_t i = 0; ext && i < nTypes; i++) {
+        if (strcasecmp(mime_types[i].ext, ext) == 0)
+            return mime_types[i].ctype;
     }
 
     return "application/octet-stream";
 }
 
-static int _print_ui_index(struct chmFile* h, struct chmUnitInfo* ui, void* context) {
-    UNUSED(h);
-    UNUSED(context);
-    FILE* fout = (FILE*)context;
+static void print_entry_index(FILE* fout, chm_entry* e) {
     fprintf(fout,
             "<tr>"
             "<td align=right>%8d\n</td>"
             "<td><a href=\"%s\">%s</a></td>"
             "</tr>",
-            (int)ui->length, ui->path, ui->path);
-    return CHM_ENUMERATOR_CONTINUE;
+            (int)e->length, e->path, e->path);
 }
 
-static void deliver_index(FILE* fout, struct chmFile* file) {
+static void deliver_index(FILE* fout, struct chm_file* file) {
     fprintf(fout,
             "HTTP/1.1 200 OK\r\n"
             "Connection: close\r\n"
@@ -272,52 +270,70 @@ static void deliver_index(FILE* fout, struct chmFile* file) {
             "<body><table>"
             "<tr><td><h5>Size:</h5></td><td><h5>File:</h5></td></tr>"
             "<tt>");
-    if (!chm_enumerate(file, CHM_ENUMERATE_ALL, _print_ui_index, fout))
-        fprintf(fout, "<br>   *** ERROR ***\r\n");
+    for (int i = 0; i < file->n_entries; i++) {
+        print_entry_index(fout, file->entries[i]);
+    }
+
     fprintf(fout, "</tt> </table></body></html>");
 }
 
-static void deliver_content(FILE* fout, const char* filename, struct chmFile* file) {
-    struct chmUnitInfo ui;
+static int streq(const char* s1, const char* s2) {
+    return strcasecmp(s1, s2) == 0;
+}
+
+static chm_entry* find_entry_by_path(chm_file* f, const char* path) {
+    chm_entry* e;
+    for (int i = 0; i < f->n_entries; i++) {
+        e = f->entries[i];
+        if (streq(e->path, path)) {
+            return e;
+        }
+    }
+    return NULL;
+}
+
+static void deliver_content(FILE* fout, const char* path, struct chm_file* file) {
+    chm_entry* e;
     const char* ext;
     unsigned char buffer[65536];
     int swath, offset;
 
-    if (strcmp(filename, "/") == 0) {
+    if (strcmp(path, "/") == 0) {
         deliver_index(fout, file);
         fclose(fout);
         return;
     }
-    /* try to find the file */
-    if (chm_resolve_object(file, filename, &ui) != CHM_RESOLVE_SUCCESS) {
+
+    e = find_entry_by_path(file, path);
+    if (e == NULL) {
         fprintf(fout, CONTENT_404);
         fclose(fout);
         return;
     }
 
     /* send the file back */
-    ext = strrchr(filename, '.');
+    ext = strrchr(path, '.');
     fprintf(
         fout,
         "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: %d\r\nContent-Type: %s\r\n\r\n",
-        (int)ui.length, lookup_mime(ext));
+        (int)e->length, lookup_mime(ext));
 
     /* pump the data out */
     swath = 65536;
     offset = 0;
-    while (offset < ui.length) {
-        if ((ui.length - offset) < 65536)
-            swath = ui.length - offset;
+    while (offset < e->length) {
+        if ((e->length - offset) < 65536)
+            swath = (int)(e->length - offset);
         else
             swath = 65536;
-        swath = (int)chm_retrieve_object(file, &ui, buffer, offset, swath);
+        swath = (int)chm_retrieve_entry(file, e, buffer, offset, swath);
         offset += swath;
-        fwrite(buffer, 1, swath, fout);
+        fwrite(buffer, 1, (size_t)swath, fout);
     }
     fclose(fout);
 }
 
-static void service_request(int fd, struct chmFile* file) {
+static void service_request(int fd, struct chm_file* file) {
     char buffer[4096];
     char buffer2[4096];
     char* end;
