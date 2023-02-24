@@ -178,7 +178,7 @@ static int chmhttp_server(const char* path) {
     bindAddr.sin_port = htons(config_port);
     bindAddr.sin_addr.s_addr = inet_addr(config_bind);
 
-    if (setsockopt(server.socket, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one))) {
+    if (setsockopt(server.socket, SOL_SOCKET, SO_REUSEADDR, (const char *) &one, sizeof(one))) {
         perror("setsockopt");
         return 3;
     }
